@@ -80,53 +80,54 @@ $ sudo vi /etc/elasticsearch/jvm.options
 :wq
 ```
 
-Export JAVA Variables.
+Configure Elasticsearch and allow service through Public network or anywhere
 ```sh
 $ sudo cat >> /etc/elasticsearch/elasticsearch.yml << "EOF"
 node.name: "My First Node"
 cluster.name: mycluster1
 network.host: 0.0.0.0
 EOF
+```
 
 ## Running Elasticsearch
 Use the `chkconfig` command to configure Elasticsearch to start automatically when the system boots up
 ```sh
 $ sudo chkconfig --add elasticsearch
 ```
-Elasticsearch can be started using the `service` or systemctl command
+Elasticsearch can be started using the `service` or systemctl command. Check status of the service after sometime.
 ```sh
 # To Start Elasticsearch 
 $ sudo service elasticsearch start
-```
-
-```sh
-[root@ip-10-80-4-74 ~]# sudo -i service elasticsearch start
 Starting elasticsearch:                                    [  OK  ]
+
+$ sudo service elasticsearch status
+```
+Use the `netstat` or lsof command to verify Elasticsearch ports numbers
+```sh
+$ su7do netstat -tulpn|grep -e 9200 -e 9300
+tcp6       0      0 0.0.0.0:9300          :::*                    LISTEN      12646/java
+tcp6       0      0 0.0.0.0:9200          :::*                    LISTEN      12646/java
+[root@ip-172-31-64-218 ~]#
 ```
 
-#### Configuring Access to ElasticSearch through Public IP
-Typically you add your corporate IP/private IP and allow the same in the firewall/security group to allow access to ElasticSearch. In our case, just to give a dirty hack to get going we will open to the internet.
-DO THIS ONLY FOR LEARNING PURPOSES - NOT FOR BUSINESS WORKLOADS CONFIGURATIONS
-```sh
-echo "network.host: 0.0.0.0" >> /etc/elasticsearch/elasticsearch.yml
-curl localhost:9200
-```
-We should see something like this:
-```sh
 
-[root@ip-10-80-4-74 elasticsearch]# curl localhost:9200
+#### Lets Access to ElasticSearch
+Once it is up then it will be accessable from enywhere, we can verify it and it will be see something like this:
+If 9200 is allowend in your SG on AWS then we can access it from internet as well.
+```sh
+$ curl -X GET "http://127.0.0.1:9200?pretty"
 {
-  "name" : "Gr7qXpl",
-  "cluster_name" : "elasticsearch",
-  "cluster_uuid" : "XouOh_loQ62c3nHcDxbDOQ",
+  "name" : "My First Node",
+  "cluster_name" : "mycluster1",
+  "cluster_uuid" : "A_Sx8sMuS_WYUfdoO7-CZA",
   "version" : {
-    "number" : "6.3.1",
+    "number" : "6.8.10",
     "build_flavor" : "default",
     "build_type" : "rpm",
-    "build_hash" : "eb782d0",
-    "build_date" : "2018-06-29T21:59:26.107521Z",
+    "build_hash" : "537cb22",
+    "build_date" : "2020-05-28T14:47:19.882936Z",
     "build_snapshot" : false,
-    "lucene_version" : "7.3.1",
+    "lucene_version" : "7.7.3",
     "minimum_wire_compatibility_version" : "5.6.0",
     "minimum_index_compatibility_version" : "5.0.0"
   },
