@@ -25,25 +25,32 @@ Follow this article on **[Youtube](https://youtu.be/7WE8AAdGSlM)**
 ### Pre-Requisites
 The minimum required Java version is 8.
 ```sh
-java -version
-# Install Java v8 (if it is lesser than v8)
-sudo yum -y install java-1.8.0-openjdk
-sudo yum -y remove java-1.7.0-openjdk
-java -version
-echo $JAVA_HOME
-# export PATH=$JAVA_HOME/bin:$PATH 
+$ sudo yum -y install java-1.8.0-openjdk
+$ sudo yum -y remove java-1.7.0-openjdk
+$ java -version
 ```
 
+Export JAVA Variables.
+```sh
+$ sudo cat > /etc/profile.d/java.sh << "EOF"
+export JAVA_HOME=/usr/lib/jvm/jre-openjdk
+export PATH=$PATH:$JAVA_HOME/bin
+export CLASSPATH=.:$JAVA_HOME/jre/lib:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+EOF
+
+$ source /etc/profile.d/java.sh
+```
+
+### Installing from the RPM repository
 We are going to install ES in Amazon Linux 2, you should be able to adapt this procedure for say RHEL/CentOS/Fedora.
 Elasticsearch requires at least Java 8.
 ```sh
-# Accept the ElasticSearch GPG Key
-sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+$ sudo rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
 ```
-### Installing from the RPM repository
+
 Create a file called `elasticsearch.repo` in the `/etc/yum.repos.d/` directory. The below repo is for ES version 6.x
 ```sh
-cat > /etc/yum.repos.d/elasticsearch.repo << "EOF"
+$ sudo cat > /etc/yum.repos.d/elasticsearch.repo << "EOF"
 [elasticsearch-6.x]
 name=Elasticsearch repository for 6.x packages
 baseurl=https://artifacts.elastic.co/packages/6.x/yum
@@ -53,24 +60,43 @@ enabled=1
 autorefresh=1
 type=rpm-md
 EOF
-
-# Install from RPM Repo
-sudo yum -y install elasticsearch
-
-# For manual installations visit
-# https://www.elastic.co/downloads/elasticsearch
 ```
+
+Install from RPM Repo
+```sh
+$ sudo yum install elasticsearch -y
+```
+
+
+For manual installations visit
+https://www.elastic.co/downloads/elasticsearch
+
+Update Elasticsearch Minumum and maximum java memory. Default recomanded 1g and below replaced with 512m.
+```sh
+$ sudo vi /etc/elasticsearch/jvm.options
+-Xms512m
+-Xmx512m
+
+:wq
+```
+
+Export JAVA Variables.
+```sh
+$ sudo cat >> /etc/elasticsearch/elasticsearch.yml << "EOF"
+node.name: "My First Node"
+cluster.name: mycluster1
+network.host: 0.0.0.0
+EOF
 
 ## Running Elasticsearch
 Use the `chkconfig` command to configure Elasticsearch to start automatically when the system boots up
 ```sh
-sudo chkconfig --add elasticsearch
+$ sudo chkconfig --add elasticsearch
 ```
-Elasticsearch can be started and stopped using the `service` command
+Elasticsearch can be started using the `service` or systemctl command
 ```sh
-# To Start/Stop Elasticsearch 
-sudo -i service elasticsearch start
-sudo -i service elasticsearch stop
+# To Start Elasticsearch 
+$ sudo service elasticsearch start
 ```
 
 ```sh
