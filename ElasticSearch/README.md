@@ -136,7 +136,7 @@ $ curl -X GET "http://127.0.0.1:9200?pretty"
 ```
 It is my strong recommendation that you put your servers in a load balacer. Check out how to setup [ELB here](https://www.youtube.com/watch?v=QyjDktNxdQg)
 
-## credentials setup on ES(Elastic Search)
+## Credentials setup on ES
 ### Step1: Configuration of ES
 Append descovery type and X-Pack plugin scurity parmaters in ES configuration. By default this plugin is alrady part of this version therefore no need to install.
 ```sh
@@ -201,7 +201,7 @@ Lets Access ElasticSearch
 ```sh
 $ curl -X GET -u elastic:IFEB688UuZGj7XEZLgRP "http://127.0.0.1:9200?pretty"
 ```
-### Step4: New Canredentils
+### Step4: New credentils
 Create a new user, password and assgin role to the user
 New user name is: bob
 password for bob is 123456 (Password should min 6 characters)
@@ -213,13 +213,14 @@ $ sudo /usr/share/elasticsearch/bin/elasticsearch-users useradd bob -p 123456 -r
 Lets verify and listed all users created
 ```sh
 $ sudo /usr/share/elasticsearch/bin/elasticsearch-users list
-amit           : superuser
+bob           : superuser
 $
 ```
 Lets Access ElasticSearch
 ```sh
 $ curl -X GET -u bob:123456 "http://127.0.0.1:9200?pretty"
 ```
+
 Incase to restet password for the user
 ```sh
 $ sudo /usr/share/elasticsearch/bin/elasticsearch-users passwd bob
