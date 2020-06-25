@@ -104,7 +104,7 @@ $ sudo service elasticsearch status
 ```
 Use the `netstat` or lsof command to verify Elasticsearch ports numbers
 ```sh
-$ su7do netstat -tulpn|grep -e 9200 -e 9300
+$ sudo netstat -tulpn | grep -e 9200 -e 9300
 tcp6       0      0 0.0.0.0:9300          :::*                    LISTEN      12646/java
 tcp6       0      0 0.0.0.0:9200          :::*                    LISTEN      12646/java
 [root@ip-172-31-64-218 ~]#
@@ -136,6 +136,94 @@ $ curl -X GET "http://127.0.0.1:9200?pretty"
 ```
 It is my strong recommendation that you put your servers in a load balacer. Check out how to setup [ELB here](https://www.youtube.com/watch?v=QyjDktNxdQg)
 
+## credentials setup on ES(Elastic Search)
+
+Append descovery type and X-Pack plugin scurity parmaters in ES configuration. By default this plugin is alrady part of this version therefore no need to install.
+```sh
+$ sudo cat >> /etc/elasticsearch/elasticsearch.yml << "EOF"
+discovery.type: single-node
+xpack.security.enabled: true
+EOF
+```
+
+Elasticsearch can be started using the `service` or systemctl command. Check status of the service after sometime.
+```sh
+# To Start Elasticsearch 
+$ sudo service elasticsearch restart
+Starting elasticsearch:                                    [  OK  ]
+
+$ sudo service elasticsearch status
+```
+
+Use the `netstat` or lsof command to verify Elasticsearch ports numbers
+```sh
+$ sudo netstat -tulpn | grep -e 9200 -e 9300
+tcp6       0      0 0.0.0.0:9300          :::*                    LISTEN      12646/java
+tcp6       0      0 0.0.0.0:9200          :::*                    LISTEN      12646/java
+[root@ip-172-31-64-218 ~]#
+
+
+There are tow option to to genrate default credentils/password to the below users, first auto and second is manualy.  It will be ontime process once x-pack configured.
+apm_system
+kibana
+logstash_system
+beats_system
+remote_monitoring_user
+elastic
+
+In the below example trying to auto genrated password and it will be ontime process once x-pack configured.
+```sh
+$ sudo /usr/share/elasticsearch/bin/elasticsearch-setup-passwords auto
+Initiating the setup of passwords for reserved users elastic,apm_system,kibana,logstash_system,beats_system,remote_monitoring_user.
+The passwords will be randomly generated and printed to the console.
+Please confirm that you would like to continue [y/N]`y`
+
+Changed password for user apm_system
+PASSWORD apm_system = Vfdx19x5W3On3FMLDvGh
+
+Changed password for user kibana
+PASSWORD kibana = cybTyGeMTD93PqKCKiqw
+
+Changed password for user logstash_system
+PASSWORD logstash_system = pcYzcJM82DHoMsTDywxO
+
+Changed password for user beats_system
+PASSWORD beats_system = COXXkW4bkalcHlZbMzGl
+
+Changed password for user remote_monitoring_user
+PASSWORD remote_monitoring_user = YmaxNmptPsijoO2ao7Vl
+
+Changed password for user elastic
+PASSWORD elastic = IFEB688UuZGj7XEZLgRP
+```
+
+Lets Access ElasticSearch
+```sh
+$ curl -X GET -u elastic:IFEB688UuZGj7XEZLgRP "http://127.0.0.1:9200?pretty"
+```
+
+## Create a new user, password and assgin role to the user
+New user name is: bob
+password for bob is 123456 (Password should min 6 characters)
+To allow ES, have given role: superuser (full access)
+```sh
+$ sudo /usr/share/elasticsearch/bin/elasticsearch-users useradd bob -p 123456 -r superuser
+```
+
+Lets verify and listed all users created
+```sh
+$ sudo /usr/share/elasticsearch/bin/elasticsearch-users list
+amit           : superuser
+$
+```
+Lets Access ElasticSearch
+```sh
+$ curl -X GET -u bob:123456 "http://127.0.0.1:9200?pretty"
+```
+Incase to restet password for the user
+```sh
+$ sudo /usr/share/elasticsearch/bin/elasticsearch-users passwd bob
+```
 
 ## Accessing the ES through GUI
 Install this chrome plugin
