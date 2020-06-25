@@ -20,9 +20,9 @@ Follow this article on **[Youtube](https://youtu.be/7WE8AAdGSlM)**
     - Port 9200: For REST API ( _for learning open to the internet_, usually private subnets in your VPC)
     - Port 9300: For ES Nodes to communicate ( _for learning open to the internet_, usually private subnets in your VPC) 
 
-## Step 1: Install Elasticsearch
+## Install Elasticsearch
 
-### Pre-Requisites
+### Step1: Pre-Requisites
 The minimum required Java version is 8.
 ```sh
 $ sudo yum -y install java-1.8.0-openjdk
@@ -41,7 +41,7 @@ EOF
 $ source /etc/profile.d/java.sh
 ```
 
-### Installing from the RPM repository
+### Step2: Installing from the RPM repository
 We are going to install ES in Amazon Linux 2, you should be able to adapt this procedure for say RHEL/CentOS/Fedora.
 Elasticsearch requires at least Java 8.
 ```sh
@@ -67,10 +67,11 @@ Install from RPM Repo
 $ sudo yum install elasticsearch -y
 ```
 
-
 For manual installations visit
 https://www.elastic.co/downloads/elasticsearch
 
+
+### Step3: Configuration of ES (Elastic Search)
 Update Elasticsearch Minumum and maximum java memory. Default recomanded 1g and below replaced with 512m.
 ```sh
 $ sudo vi /etc/elasticsearch/jvm.options
@@ -89,20 +90,19 @@ network.host: 0.0.0.0
 EOF
 ```
 
-## Running Elasticsearch
-Use the `chkconfig` command to configure Elasticsearch to start automatically when the system boots up
+### Step4: Running Elasticsearch
+Use the `chkconfig` or `systemctl` command to configure Elasticsearch to start automatically when the system boots up
 ```sh
 $ sudo chkconfig --add elasticsearch
 ```
-Elasticsearch can be started using the `service` or systemctl command. Check status of the service after sometime.
+Elasticsearch can be started using the `service` or `systemctl` command. Check status of the service after sometime.
 ```sh
-# To Start Elasticsearch 
 $ sudo service elasticsearch start
-Starting elasticsearch:                                    [  OK  ]
-
+  Starting elasticsearch:                                    [  OK  ]
+$
 $ sudo service elasticsearch status
 ```
-Use the `netstat` or lsof command to verify Elasticsearch ports numbers
+Use the `netstat` or lsof command to verify Elasticsearch ports numbers 9200 -and 9300.
 ```sh
 $ sudo netstat -tulpn | grep -e 9200 -e 9300
 tcp6       0      0 0.0.0.0:9300          :::*                    LISTEN      12646/java
@@ -111,7 +111,7 @@ tcp6       0      0 0.0.0.0:9200          :::*                    LISTEN      12
 ```
 
 
-#### Lets Access to ElasticSearch
+### Step5: Lets Access to ElasticSearch
 Once it is up then it will be accessable from enywhere, we can verify it and it will be see something like this:
 If 9200 is allowend in your SG on AWS then we can access it from internet as well.
 ```sh
@@ -137,7 +137,7 @@ $ curl -X GET "http://127.0.0.1:9200?pretty"
 It is my strong recommendation that you put your servers in a load balacer. Check out how to setup [ELB here](https://www.youtube.com/watch?v=QyjDktNxdQg)
 
 ## credentials setup on ES(Elastic Search)
-
+### Step1: Configuration of ES
 Append descovery type and X-Pack plugin scurity parmaters in ES configuration. By default this plugin is alrady part of this version therefore no need to install.
 ```sh
 $ sudo cat >> /etc/elasticsearch/elasticsearch.yml << "EOF"
@@ -145,12 +145,11 @@ discovery.type: single-node
 xpack.security.enabled: true
 EOF
 ```
-
+### Step2: Running Elasticsearch
 Elasticsearch can be started using the `service` or systemctl command. Check status of the service after sometime.
 ```sh
-# To Start Elasticsearch 
 $ sudo service elasticsearch restart
-Starting elasticsearch:                                    [  OK  ]
+  Starting elasticsearch:                                    [  OK  ]
 
 $ sudo service elasticsearch status
 ```
@@ -161,8 +160,9 @@ $ sudo netstat -tulpn | grep -e 9200 -e 9300
 tcp6       0      0 0.0.0.0:9300          :::*                    LISTEN      12646/java
 tcp6       0      0 0.0.0.0:9200          :::*                    LISTEN      12646/java
 [root@ip-172-31-64-218 ~]#
+```
 
-
+### Step3: Creating credentils
 There are tow option to to genrate default credentils/password to the below users, first auto and second is manualy.  It will be ontime process once x-pack configured.
 apm_system
 kibana
@@ -201,8 +201,8 @@ Lets Access ElasticSearch
 ```sh
 $ curl -X GET -u elastic:IFEB688UuZGj7XEZLgRP "http://127.0.0.1:9200?pretty"
 ```
-
-## Create a new user, password and assgin role to the user
+### Step4: New Canredentils
+Create a new user, password and assgin role to the user
 New user name is: bob
 password for bob is 123456 (Password should min 6 characters)
 To allow ES, have given role: superuser (full access)
